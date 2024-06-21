@@ -19,7 +19,7 @@ class HashScanner:
         self.hash_calculator = hash_calculator
     
     def is_malicious(self, threat_category):
-        #Check if the list of threat_category is empty, and return a Bool based on the result
+        # Check if the list of threat_category is empty, and return a Bool based on the result
         return len(threat_category) > 0
     
     def hash_scan(self, file_path):
@@ -28,23 +28,23 @@ class HashScanner:
         if not file_hash:
             return {"error": "Failed to calculate hash"}
         
-        #Request URL for the VirusTotal API
+        # Request URL for the VirusTotal API
         url = f"https://www.virustotal.com/api/v3/files/{file_hash}"
         headers = {
             "accept": "application/json",
             "x-apikey": self.api_key_value
         }
 
-        #Send the GET request to the VirusTotal API
+        # Send the GET request to the VirusTotal API
         response = requests.get(url, headers=headers)
         
-        #Process the API response
+        # Process the API response
         if response.status_code == 200:
             data = json.loads(response.text)
             attributes = data.get('data', {}).get('attributes', {})
             
             if attributes:
-                #Extract the relevant information from the JSON response
+                # Extract the relevant information from the JSON response
                 names = attributes.get('names', [])
                 reputation = attributes.get('reputation', 0)
                 
@@ -55,7 +55,7 @@ class HashScanner:
                 tags = attributes.get('tags', [])
                 type_description = attributes.get('type_description', "")
                 
-                #Construct the result Dictionary
+                # Construct the result Dictionary
                 result = {
                     "names": names,
                     "reputation": reputation,
@@ -65,10 +65,14 @@ class HashScanner:
                     "tags": tags,
                     "type_description": type_description,
                 }
+
+                # Log the result
+                is_malicious = self.is_malicious(result["popular_threat_categories"])
+                self.logger.log_scan_result(is_malicious, file_path)
                 
                 return result
             else:
                 return {"error": "No attributes found"}
         else:
-            #Return an error message based on the response HTTP code, if the response was not 200
+            # Return an error message based on the response HTTP code, if the response was not 200
             return {"error": f"Error: {response.status_code}"}
