@@ -18,12 +18,12 @@ class HashCalculator:
                 hasher = hashlib.sha256()
                 with open(file_path, "rb") as f:
                     while True:
-                        data = f.read(65536)  #Read the file in chunks
+                        data = f.read(65536)
                         if not data:
                             break
-                        hasher.update(data)  #Update the hash with the current chunk
-                hash_value = hasher.hexdigest()  #Get the hexadecimal hash value
-                return file_path, hash_value  # Return both file path and hash value as a tuple
+                        hasher.update(data)
+                hash_value = hasher.hexdigest()
+                return file_path, hash_value
             except Exception as e:
                 print(f"Error calculating hash for file {file_path}: {e}")
-                return file_path, None  # Return file path and None in case of error
+                return file_path, None

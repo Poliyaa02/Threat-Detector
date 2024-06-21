@@ -7,18 +7,21 @@ the hash of the new files and scan them for potential threats using VirusTotal A
 logged using a logger.
 '''
 
+
 class FileObserver(FileSystemEventHandler):
     def __init__(self, hash_scanner):
         super().__init__()
         self.hash_scanner = hash_scanner
 
-    #def is called after the creation of a new file in the specified folder
     def on_created(self, event):
-        if not event.is_directory:      #Check if is a file and not a dir
-            file_path = event.src_path  
-            scan_result = self.hash_scanner.hash_scan(file_path)    #Scan the file using hash_scanner
-            if "error" not in scan_result:
-                is_malicious = self.hash_scanner.is_malicious(scan_result["popular_threat_categories"])     #Find if a file is malicious
-                self.hash_scanner.logger.log_scan_result(is_malicious, file_path, scan_result["popular_threat_categories"], scan_result["type_description"])    #Log the scan results
-            else:
-                self.hash_scanner.logger.log_scan_result(False, file_path, ["Error"], scan_result["error"])
+        if not event.is_directory:
+            file_path = event.src_path
+            print(f"New file created: {file_path}")
+            self.process_new_file(file_path)
+
+    def process_new_file(self, file_path):
+        try:
+            is_malicious = self.hash_scanner.hash_scan(file_path)
+            self.hash_scanner.logger.log_scan_result(is_malicious, file_path)
+        except Exception as e:
+            print(f"Error processing file '{file_path}': {e}")
