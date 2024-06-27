@@ -9,14 +9,14 @@ from lib.logger import Logger
 from lib.cli import CommandInterface
 
 def load_config():
-    # Get the current username
     username = getpass.getuser()
     config_path = os.path.join(os.path.dirname(__file__), "data", "config.yaml")
-    config_path = config_path.replace("{username}", username)
 
     try:
         with open(config_path, "r", encoding="utf-8") as config_file:
-            config = yaml.safe_load(config_file)
+            config_content = config_file.read()
+            config_content = config_content.format(username=username)  # Perform substitution
+            config = yaml.safe_load(config_content)
             return config
     except FileNotFoundError:
         print(f"Error: Config file '{config_path}' not found.")
@@ -32,15 +32,20 @@ def main():
         print(f"Arguments parsed: {args}")
 
         if args.file_path:
-            scan_folder = args.file_path
+            scan_folders = [args.file_path]
         else:
             config = load_config()
-            scan_folder = config.get("SCAN_FOLDER")
+            scan_folders = config.get("SCAN_FOLDER", [])
 
-        if not scan_folder or not os.path.exists(scan_folder):
-            raise ValueError(f"SCAN_FOLDER '{scan_folder}' specified in config.yaml does not exist or is not valid.")
+        if not scan_folders:
+            raise ValueError("No valid SCAN_FOLDER specified in config.yaml.")
 
-        print(f"scanning folder: {scan_folder}")
+        for scan_folder in scan_folders:
+            if not os.path.exists(scan_folder):
+                raise ValueError(f"SCAN_FOLDER '{scan_folder}' specified in config.yaml does not exist or is not valid.")
+
+        print(f"Scanning folders: {scan_folders}")
+
         # Initialize HashCalculator
         hash_calculator = HashCalculator()
 
@@ -50,11 +55,12 @@ def main():
         # Initialize HashScanner
         hash_scanner = HashScanner(logger, hash_calculator)
 
-        # Initialize FileObserver 
+        # Initialize FileObserver
         observer = Observer()
-        observer.schedule(FileObserver(hash_scanner), scan_folder, recursive=True)
+        for scan_folder in scan_folders:
+            observer.schedule(FileObserver(hash_scanner), scan_folder, recursive=True)
+            print(f"Observer started on folder: {scan_folder}")
         observer.start()
-        print(f"Observer started on folder: {scan_folder}")
 
         try:
             while True:
