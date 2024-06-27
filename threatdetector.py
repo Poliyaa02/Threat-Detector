@@ -1,14 +1,19 @@
 import os
+import getpass
 import yaml
 from watchdog.observers import Observer
-from src.modules.hash_scanner.hash_calculator import HashCalculator
-from src.modules.hash_scanner.hash_scanner import HashScanner
-from src.modules.hash_scanner.file_observer import FileObserver
-from src.utils.logger_creator import LoggerCreator
-from src.utils.command_interface import CommandInterface
+from modules.hash_scanner.hash_calculator import HashCalculator
+from modules.hash_scanner.hash_scanner import HashScanner
+from modules.hash_scanner.file_observer import FileObserver
+from lib.logger import Logger
+from lib.cli import CommandInterface
 
 def load_config():
-    config_path = os.path.join(os.path.dirname(__file__), "src", "data", "config.yaml")
+    # Get the current username
+    username = getpass.getuser()
+    config_path = os.path.join(os.path.dirname(__file__), "data", "config.yaml")
+    config_path = config_path.replace("{username}", username)
+
     try:
         with open(config_path, "r", encoding="utf-8") as config_file:
             config = yaml.safe_load(config_file)
@@ -17,7 +22,7 @@ def load_config():
         print(f"Error: Config file '{config_path}' not found.")
         return {}
     except yaml.YAMLError as e:
-        print(f"Error parsing YAML file '{config_path}': {e}")
+        print(f"Error with the YAML file '{config_path}': {e}")
         return {}
 
 def main():
@@ -36,16 +41,16 @@ def main():
             raise ValueError(f"SCAN_FOLDER '{scan_folder}' specified in config.yaml does not exist or is not valid.")
 
         print(f"scanning folder: {scan_folder}")
-        # Initialize HashCalculator instance
+        # Initialize HashCalculator
         hash_calculator = HashCalculator()
 
-        # Initialize LoggerCreator instance
-        logger = LoggerCreator()
+        # Initialize LoggerCreator
+        logger = Logger()
 
-        # Initialize HashScanner instance with LoggerCreator for logging
+        # Initialize HashScanner
         hash_scanner = HashScanner(logger, hash_calculator)
 
-        # Initialize FileObserver with HashScanner instance
+        # Initialize FileObserver 
         observer = Observer()
         observer.schedule(FileObserver(hash_scanner), scan_folder, recursive=True)
         observer.start()
@@ -53,7 +58,7 @@ def main():
 
         try:
             while True:
-                pass  # Keep the program running to handle events
+                pass
 
         except KeyboardInterrupt:
             print("KeyboardInterrupt received, stopping observer...")

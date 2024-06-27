@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.1w2] - 2024-06-27 - Weekly Rollout
+
+### Changed
+
+- Improved the real-time scanner to include all foundamental folders
+- Improved the code and directory structure, for better readability 
+
 ## [v0.1w1] - 2024-06-21 - Weekly Rollout
 
 ### Added

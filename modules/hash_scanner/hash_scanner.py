@@ -11,7 +11,7 @@ Scan results are logged using a provided logger.
 
 class HashScanner:
     def __init__(self, logger, hash_calculator):
-        with open("src/data/config.yaml", "r") as f:
+        with open("data/config.yaml", "r") as f:
             config = yaml.safe_load(f)
         self.api_key_value = config["API_KEY"]
         self.key_name = config["KEY_NAME"]

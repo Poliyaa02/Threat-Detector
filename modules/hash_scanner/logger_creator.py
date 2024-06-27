@@ -5,9 +5,9 @@ import datetime
 The LoggerCreator class manages logging, writing the results in a local file.
 '''
 
-class LoggerCreator:
+class Logger:
     def __init__(self):
-        self.log_file_path = "src/data/local_log"
+        self.log_file_path = "data/local_log"
 
         try:
             self.log_file = open(self.log_file_path, "a")  # Open log file in append mode

@@ -8,9 +8,9 @@ The LoggerCreator class manages logging, writing the results in a local file.
 '''
 
 
-class LoggerCreator:
+class Logger:
     def __init__(self):
-        self.log_file_path = os.path.join("src", "data", "local_log")
+        self.log_file_path = os.path.join("data", "local_log")
         self.setup_logging()
 
 
